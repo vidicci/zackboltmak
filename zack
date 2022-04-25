@@ -1,70 +1,81 @@
-#include <unistd.h>
+#include <stdio.h>
+#include <math.h>
+#include <ncurses.h>
 
+#define MAX_SCREEN_X 80
+#define MAX_SCREEN_Y 40
+#define DESIRED_ORIGO_X MAX_SCREEN_Y/2
+#define DESIRED_ORIGO_Y MAX_SCREEN_Y/2
+#define X_SCALE MAX_SCREEN_X / (2 * PI)
+#define Y_SCALE -MAX_SCREEN_Y / 2
+#define X_PAN DESIRED_ORIGO_X
+#define Y_PAN DESIRED_ORIGO_Y
+#define PI 3.14159
+#define WIDTH 60
+#define HEIGHT 20
+#define X WIDTH/2
+#define Y HEIGHT/2
+#define XMAX WIDTH-X-1
+#define XMIN -(WIDTH-X)
+#define YMAX HEIGHT-Y
+#define YMIN -(HEIGHT-Y)+1
 
+char grid[HEIGHT][WIDTH];
 
-#define MIN_X 15
-#define MAX_X 30
-#define MIN_Y 15
-#define MAX_Y 30
+int plot(int x, int y);
+void init_grid(void);
+void show_grid(void);
 
-
-void draw_dot(int i, int j);
-
-int main (void)
+int main()
 {
-    int i,j;
-    char ch;
+    float x,y;
 
-    initscr ();
-    clear ();
-
-    start_color ();
-    init_pair (3, COLOR_RED, COLOR_WHITE);
-    bkgd (COLOR_PAIR (3));
-    curs_set(0);
-
-    noecho ();			/* stop echo of input */
-
-    for (i = MIN_X; i < MAX_X; i++)
+    init_grid();
+    for(x=-3.14159;x<=3.14159;x+=0.1)
     {
-        draw_dot(MIN_Y,i);
-        draw_dot(MAX_Y,i);
-        }
-        refresh ();
-	sleep(1);
+        y = sin(x);
+        plot(rintf(x*10),rintf(y*8));
+    }
+    show_grid();
 
-    for (i = MIN_Y; i < MAX_Y; i++)
-    {
-        draw_dot(i,MIN_X);
-        draw_dot(i,MAX_X);
-        }
-
-        refresh ();
-	sleep(1);
-
-	j=MAX_X;
-
-    for (i = MIN_Y; i < MAX_Y; i++)
-    {
-        draw_dot(i,j);
-        draw_dot(i,i);
-	j--;
-        }
-        refresh();
-	sleep(1);
-
-    getch ();
-    endwin ();
+    return(0);
 }
 
 
-
-void draw_dot(int x, int y)
+int plot(int x, int y)
 {
-    int i,j;
+    if( x > XMAX || x < XMIN || y > YMAX || y < YMIN )
+        return(-1);
 
-        move(x,y);
-        printw("*");
+    grid[Y-y][X+x] = '*';
+    return(1);
+}
 
+void init_grid(void)
+{
+    int x,y;
+
+    for(y=0;y<HEIGHT;y++)
+        for(x=0;x<WIDTH;x++)
+            grid[y][x] = ' ';
+    
+    for(y=0;y<HEIGHT;y++)
+        grid[y][X] = '|';
+    for(x=0;x<WIDTH;x++)
+        grid[Y][x] = '-';
+    grid[Y][X] = '+';
+}
+
+
+void show_grid(void)
+{
+    int x,y;
+
+    for(y=0;y<HEIGHT;y++)
+    {
+        for(x=0;x<WIDTH;x++)
+            putchar(grid[y][x]);
+        putchar('\n');
+    }
 }
 
