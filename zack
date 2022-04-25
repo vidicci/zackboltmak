@@ -1,5 +1,5 @@
-#include <ncurses.h>
-#include <unistd.h> /* needed for usleep delay*/
+#include <unistd.h>
+
 
 
 #define MIN_X 15
